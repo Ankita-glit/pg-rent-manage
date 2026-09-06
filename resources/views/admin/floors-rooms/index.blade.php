@@ -39,13 +39,13 @@
                 </div>
 
                 <div class="flex items-center space-x-2">
-                    <form action="{{ route('admin.floors.destroy', $floor) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this floor?')">
+                    <form id="deleteFloorForm_{{ $floor->id }}" action="{{ route('admin.floors.destroy', $floor) }}" method="POST" class="hidden">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="p-2 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors" title="Delete Floor">
-                            <i data-lucide="trash-2" class="w-4 h-4"></i>
-                        </button>
                     </form>
+                    <button type="button" onclick="confirmCustomDelete(event, 'Delete {{ addslashes($floor->name) }}?\nThis will also delete all rooms on this floor if they have no active renters.', 'deleteFloorForm_{{ $floor->id }}')" class="p-2 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors" title="Delete Floor">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
                 </div>
             </div>
 
@@ -66,13 +66,13 @@
                                 <button onclick="openEditRoomModal({{ json_encode($room) }})" class="p-1.5 rounded-lg text-slate-400 hover:text-blue-400 hover:bg-blue-500/10">
                                     <i data-lucide="edit-3" class="w-4 h-4"></i>
                                 </button>
-                                <form action="{{ route('admin.rooms.destroy', $room) }}" method="POST" onsubmit="return confirm('Delete room {{ $room->room_number }}?')">
+                                <form id="deleteRoomForm_{{ $room->id }}" action="{{ route('admin.rooms.destroy', $room) }}" method="POST" class="hidden">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10">
-                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                    </button>
                                 </form>
+                                <button type="button" onclick="confirmCustomDelete(event, 'Delete Room {{ addslashes($room->room_number) }}? This cannot be undone.', 'deleteRoomForm_{{ $room->id }}')" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
                             </div>
                         </div>
 

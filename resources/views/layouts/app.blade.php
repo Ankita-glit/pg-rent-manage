@@ -375,10 +375,17 @@
         }
 
         let pendingDeleteForm = null;
+        let pendingDeleteFormId = null;
 
-        function confirmCustomDelete(event, message = "Are you sure you want to delete this record?") {
+        function confirmCustomDelete(event, message = "Are you sure you want to delete this record?", formId = null) {
             event.preventDefault();
-            pendingDeleteForm = event.target;
+            if (formId) {
+                pendingDeleteFormId = formId;
+                pendingDeleteForm = null;
+            } else {
+                pendingDeleteForm = event.target;
+                pendingDeleteFormId = null;
+            }
             document.getElementById('deleteModalMessage').innerText = message;
             document.getElementById('customDeleteModal').classList.remove('hidden');
             return false;
@@ -387,12 +394,17 @@
         function closeCustomDeleteModal() {
             document.getElementById('customDeleteModal').classList.add('hidden');
             pendingDeleteForm = null;
+            pendingDeleteFormId = null;
         }
 
         document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
-            if (pendingDeleteForm) {
+            if (pendingDeleteFormId) {
+                const form = document.getElementById(pendingDeleteFormId);
+                if (form) form.submit();
+            } else if (pendingDeleteForm) {
                 pendingDeleteForm.submit();
             }
+            closeCustomDeleteModal();
         });
 
         let pendingCrucialForm = null;

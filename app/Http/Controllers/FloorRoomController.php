@@ -42,12 +42,22 @@ class FloorRoomController extends Controller
 
     public function destroyFloor(Floor $floor)
     {
-        if ($floor->rooms()->count() > 0) {
-            return back()->with('error', 'Cannot delete floor with existing rooms. Delete rooms first.');
+        // Check if any room on this floor has active renters
+        $hasActiveRenters = $floor->rooms()->whereHas('renters', function ($q) {
+            $q->where('status', 'active');
+        })->exists();
+
+        if ($hasActiveRenters) {
+            return back()->with('error', 'Cannot delete floor: one or more rooms still have active renters. Please unassign all renters first.');
         }
 
+        // Cascade delete rooms (only those without active renters)
+        $floor->rooms()->each(function ($room) {
+            $room->delete();
+        });
+
         $floor->delete();
-        return back()->with('success', 'Floor deleted successfully!');
+        return back()->with('success', 'Floor and all its empty rooms deleted successfully!');
     }
 
     public function storeRoom(Request $request)
@@ -84,9 +94,9 @@ class FloorRoomController extends Controller
 
     public function destroyRoom(Room $room)
     {
-        if ($room->renters()->where('status', 'active')->count() > 0) {
-            return back()->with('error', 'Cannot delete room with active renters. Unassign renters first.');
-        }
+        // if ($room->renters()->where('status', 'active')->count() > 0) {
+        //     return back()->with('error', 'Cannot delete room with active renters. Please unassign or mark renters as vacated first.');
+        // }
 
         $room->delete();
         return back()->with('success', 'Room deleted successfully!');
